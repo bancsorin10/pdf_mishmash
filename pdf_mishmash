@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# expect $1 to be the pdf filename
+# expect $2 to be a string of pages ex. "1 2 20-25"
+
+if [[ "$#" -ne 2 ]]
+then
+    echo "usage: pdf_mishmash [filename] [page numbers]"
+    echo "example of page numbers '1 2 20-25'"
+    exit 1
+fi
+
+file=$1
+for page in $2
+do
+    if [[ $page == *'-'* ]]
+    then
+        f=$(echo $page | cut -d'-' -f1)
+        l=$(echo $page | cut -d'-' -f2)
+        for (( p=$f; p<=$l; p++ ))
+        do
+            pdfseparate -l $p -f $p $file split-$p-$file
+        done
+    else
+        l=$page
+        f=$page
+        pdfseparate -l $l -f $f $file split-$page-$file
+    fi
+done
+
+pdfunite split*$file united-$file
+rm split*$file
