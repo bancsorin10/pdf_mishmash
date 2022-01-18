@@ -3,6 +3,8 @@
 # expect $1 to be the pdf filename
 # expect $2 to be a string of pages ex. "1 2 20-25"
 
+split_files=""
+
 if [[ "$#" -ne 2 ]]
 then
     echo "usage: pdf_mishmash [filename] [page numbers]"
@@ -20,13 +22,15 @@ do
         for (( p=$f; p<=$l; p++ ))
         do
             pdfseparate -l $p -f $p $file split-$p-$file
+            split_files="$split_files split-$p-$file"
         done
     else
         l=$page
         f=$page
         pdfseparate -l $l -f $f $file split-$page-$file
+        split_files="$split_files split-$page-$file"
     fi
 done
 
-pdfunite split*$file united-$file
-rm split*$file
+pdfunite $split_files united-$file
+rm $split_files
